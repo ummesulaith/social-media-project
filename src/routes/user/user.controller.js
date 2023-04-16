@@ -1,5 +1,5 @@
 
-const { signup, existUser, validatePassword } = require('../../../models/user.model')
+const { signup, existUser, validatePassword } = require('../../../models/user/user.model')
 
 
 
