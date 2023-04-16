@@ -40,9 +40,25 @@ async function getAllTodos(skip,limit) {
     .limit(limit)
     
 }
+async function existsTodoWithId(todoId){
+    return await findTodo({
+        id: todoId
+    })
+}
+async function findTodo(filter) {
+    return await todoDatabase.findOne(filter,{
+        '_id': 0, '__v': 0
+    })
+}
 
+async function updateToDoById(filter){
+    let updateResult = await todoDatabase.updateOne(filter)
+    return updateResult.modifiedCount === 1;
+}
 module.exports={
     createTodo,
     getLatestToDoNumber,
-    getAllTodos
+    getAllTodos,
+    existsTodoWithId,
+    updateToDoById
 }

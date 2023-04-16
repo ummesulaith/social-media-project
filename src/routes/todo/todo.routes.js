@@ -5,7 +5,7 @@ const express = require('express'),
 
   todoRouter.post('/create',auth,todoController.httpCreateToDo)
   todoRouter.get('/',auth,todoController.httpGetToDo)
-  todoRouter.put('/',auth,todoController.httpUpdateToDo)
+  todoRouter.put('/:id',auth,todoController.httpUpdateToDo)
 
 
 //   todoRouter.get('/home',auth, userController.httpHomePage)
