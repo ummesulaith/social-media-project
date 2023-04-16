@@ -1,10 +1,7 @@
 
 const { signup, existUser, validatePassword } = require('../../../models/user/user.model')
 
-
-
 async function httpRegisterUser(req, res) {
-
   const user = req.body;
   if (!user.first_name || !user.last_name || !user.email || !user.password) {
     return res.status(400).json({
@@ -19,8 +16,6 @@ async function httpRegisterUser(req, res) {
 
   let result = await signup(user)
 
-
-  console.log('user token', result)
   return res.status(201).json(result)
 }
 
