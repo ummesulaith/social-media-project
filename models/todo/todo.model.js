@@ -55,10 +55,16 @@ async function updateToDoById(filter){
     let updateResult = await todoDatabase.updateOne(filter)
     return updateResult.modifiedCount === 1;
 }
+
+async function deleteToDoById(id){
+    let deleteResult = await todoDatabase.deleteOne({id:id})
+    return deleteResult.modifiedCount === 1;
+}
 module.exports={
     createTodo,
     getLatestToDoNumber,
     getAllTodos,
     existsTodoWithId,
-    updateToDoById
+    updateToDoById,
+    deleteToDoById
 }

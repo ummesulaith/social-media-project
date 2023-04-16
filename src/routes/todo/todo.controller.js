@@ -1,4 +1,4 @@
-const { createTodo, getLatestToDoNumber, getAllTodos, existsTodoWithId, updateToDoById } = require('../../../models/todo/todo.model')
+const { createTodo, getLatestToDoNumber, getAllTodos, existsTodoWithId, updateToDoById, deleteToDoById } = require('../../../models/todo/todo.model')
 const { getPagination } = require('../../services/query')
 
 async function httpCreateToDo(req, res) {
@@ -41,8 +41,29 @@ async function httpUpdateToDo(req, res) {
     }
 }
 
+async function httpDeleteToDo(req, res) {
+    const todoId = Number(req.params.id)
+    if ( !todoId) {
+        return res.status(400).json({
+            error: 'Missing required todo details',
+        })
+    } else {
+        let existsTodo = await existsTodoWithId(todoId)
+        if (!existsTodo) {
+            return res.status(404).json({
+                error: 'TODO not found'
+            })
+        } else {
+            const deleteTodo = await deleteToDoById(todoId)
+            return res.status(200).json({ result: "ok" })
+        }
+    }
+}
+
+
 module.exports = {
     httpCreateToDo,
     httpGetToDo,
-    httpUpdateToDo
+    httpUpdateToDo,
+    httpDeleteToDo
 }
