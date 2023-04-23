@@ -3,7 +3,7 @@ const express = require('express'),
  todoRouter = express.Router(),
   auth = require("../auth")
 
-  todoRouter.post('/create',auth,todoController.httpCreateToDo)
+  todoRouter.post('/',auth,todoController.httpCreateToDo)
   todoRouter.get('/',auth,todoController.httpGetToDo)
   todoRouter.put('/:id',auth,todoController.httpUpdateToDo)
   todoRouter.delete('/:id',auth,todoController.httpDeleteToDo)

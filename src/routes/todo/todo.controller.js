@@ -16,7 +16,10 @@ async function httpCreateToDo(req, res) {
 
 async function httpGetToDo(req, res) {
     const { skip, limit } = getPagination(req.query)
-    const todos = await getAllTodos(skip, limit)
+    let filter= req.query
+    delete filter.skip
+    delete filter.limit
+    const todos = await getAllTodos(filter,skip, limit)
     return res.status(200).json(todos)
 }
 
