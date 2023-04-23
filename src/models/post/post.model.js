@@ -3,27 +3,41 @@ const postDatabase = require('./post.model.mongo.schema'),
     DEFAULT_POST_ID = 1
 
 async function createPost(post, user, id) {
-    let resultPostData = {}, Newcomments = {}
+    let  Newcomments = {},postData
     let createdby = await getUserDetails({ email: user.email })
-    if (post.comments.length > 0) {
-        Newcomments.userId = user.id,
-            Newcomments.email = user.email,
-            Newcomments.comment = post.comments
+    if (post.comments && post.comments.length > 0) {
+        Newcomments.userId = user.id
+        Newcomments.email = user.email
+        Newcomments.comment = post.comments
+
+         postData = await postDatabase.create({
+            userId: user.id,
+            id: id,
+            createdby: createdby.name,
+            title: post.title,
+            body: post.body,
+            comments: Newcomments
+        });
+        return await postDatabase.find({id: postData.id}, {
+            '_id': 0, '__v': 0
+        })
+    }else{
+        postData = await postDatabase.create({
+            userId: user.id,
+            id: id,
+            createdby: createdby.name,
+            title: post.title,
+            body: post.body
+        });
+        
+
+       return await postDatabase.find({id: postData.id}, {
+            '_id': 0, '__v': 0
+        })
+       
+       
     }
-    const postData = await postDatabase.create({
-        userId: user.id,
-        id: id,
-        createdby: createdby.name,
-        title: post.title,
-        body: post.body,
-        comments: Newcomments
-    });
-    resultPostData.postId = postData.id
-    resultPostData.createdby = postData.createdby
-    resultPostData.title = postData.title
-    resultPostData.body = postData.body
-    resultPostData.comments = postData.comments
-    return resultPostData
+    
 }
 
 async function getUserDetails(filter) {
