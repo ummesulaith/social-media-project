@@ -1,4 +1,4 @@
-const { createPost, getLatestPostNumber, getAllPosts, existsPostWithId, updatePost } = require('../../../models/post/post.model')
+const { createPost, getLatestPostNumber, getAllPosts, existsPostWithId, updatePost } = require('../../models/post/post.model')
 const { getPagination } = require('../../services/query')
 
 async function httpCreatePost(req, res) {
