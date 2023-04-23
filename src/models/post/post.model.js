@@ -3,14 +3,14 @@ const postDatabase = require('./post.model.mongo.schema'),
     DEFAULT_POST_ID = 1
 
 async function createPost(post, user, id) {
-    let  Newcomments = {},postData
+    let Newcomments = {}, postData
     let createdby = await getUserDetails({ email: user.email })
     if (post.comments && post.comments.length > 0) {
         Newcomments.userId = user.id
         Newcomments.email = user.email
         Newcomments.comment = post.comments
 
-         postData = await postDatabase.create({
+        postData = await postDatabase.create({
             userId: user.id,
             id: id,
             createdby: createdby.name,
@@ -18,10 +18,10 @@ async function createPost(post, user, id) {
             body: post.body,
             comments: Newcomments
         });
-        return await postDatabase.find({id: postData.id}, {
+        return await postDatabase.find({ id: postData.id }, {
             '_id': 0, '__v': 0
         })
-    }else{
+    } else {
         postData = await postDatabase.create({
             userId: user.id,
             id: id,
@@ -29,15 +29,15 @@ async function createPost(post, user, id) {
             title: post.title,
             body: post.body
         });
-        
 
-       return await postDatabase.find({id: postData.id}, {
+
+        return await postDatabase.find({ id: postData.id }, {
             '_id': 0, '__v': 0
         })
-       
-       
+
+
     }
-    
+
 }
 
 async function getUserDetails(filter) {
@@ -97,22 +97,18 @@ async function updatePost(post, user, existsPost) {
             let updatecomments = await addComments(existsPost.id, post.comments)
             if (updatecomments.modifiedCount === 1) delete post.comments
         }
-
-
         updateResult = await postDatabase.updateOne({ id: existsPost.id }, { $set: post })
         return updateResult.modifiedCount === 1;
     } else {
-        if (post.comments) {
-            newComments.userId = user.id,
-                newComments.email = user.email,
-                newComments.comment = post.comments
-            post.comments = newComments
-            console.log('post', post)
-            updateResult = await addComments(existsPost.id, post.comments)
-            return updateResult.modifiedCount === 1;
-
-        } else {
+        if (post.title || post.body) {
             return 'User not authorized to edit post'
+
+        } else if(post.comments && !post.title && !post.body) {
+            newComments.userId = user.id
+            newComments.email = user.email
+            newComments.comment = post.comments
+            post.comments = newComments
+            return await addComments(existsPost.id, post.comments)
         }
     }
 
@@ -123,7 +119,12 @@ async function addComments(id, comments) {
     return result.modifiedCount === 1
 }
 
+async function checkUserAccess(currentUser, authorizedUser) {
+    let requestedEditUser = await getUserDetails({ email: currentUser.email })
+    if (requestedEditUser._id == authorizedUser.userId) return true
+    else return false
 
+}
 
 module.exports = {
     createPost,

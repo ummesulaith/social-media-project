@@ -41,9 +41,7 @@ async function httpUpdatePost(req, res) {
                 error: 'Post should contain comments/title/body '
             })
         } else {
-            console.log('testing update')
             const updatePostResult = await updatePost(postBody, req.user, existsPost)
-            console.log('testing updatePostResult', updatePostResult)
             if (updatePostResult == true) {
                 result = await existsPostWithId(postId)
                 return res.status(200).json({ result })

@@ -10,9 +10,8 @@ async function signup(user) {
         email: user.email.toLowerCase(),
         password: encryptedPassword
     });
-    
-    return await userDatabase.find({id: userData.id}, {
-        '_id': 0, '__v': 0
+    return await userDatabase.find({email: userData.email}, {
+        '_id': 0, '__v': 0, 'password':0
     })
 
 }
