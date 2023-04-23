@@ -15,14 +15,12 @@ async function signup(user) {
     data.name = userData.name
     data.email = userData.email
     data.token = token
-    console.log('data saving ', data)
 
     return data
 }
 
 async function existUser(email) {
     let isUserExist = await userDatabase.findOne({ email });
-    console.log('isuser', isUserExist)
     return isUserExist
 
 }
@@ -41,7 +39,6 @@ async function generateToken(id, email) {
 async function validatePassword(user, password) {
     let data = {}
     let isPasswordValid = await bcrypt.compare(password, user.password)
-    console.log('isPAssword ', isPasswordValid)
     if (!isPasswordValid) return false
     else {
         let token = await generateToken(user._id, user.email)

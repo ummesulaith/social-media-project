@@ -1,5 +1,5 @@
 
-const { signup, existUser, validatePassword,getAllUsers } = require('../../../models/user/user.model')
+const { signup, existUser, validatePassword,getAllUsers } = require('../../models/user/user.model')
 const { getPagination } = require('../../services/query')
 
 async function httpRegisterUser(req, res) {
@@ -30,11 +30,9 @@ async function httpLoginUser(req, res) {
   }
 
   let isOldUser = await existUser(user.email.toLowerCase())
-  console.log('check user', isOldUser)
 
   if (isOldUser) {
     result = await validatePassword(isOldUser, user.password)
-    console.log('result', result)
     if (!result) return res.status(401).json({ message: "Invalid Credentials. Please check email and password" })
     else
       return res.status(200).json({ result })
