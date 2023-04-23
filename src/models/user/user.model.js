@@ -4,19 +4,17 @@ const userDatabase = require('./user.model.mongo.schema'),
 require('dotenv').config()
 
 async function signup(user) {
-    let data = {}
     const encryptedPassword = await bcrypt.hash(user.password, 10);
     const userData = await userDatabase.create({
         name: user.name,
-        email: user.email.toLowerCase(), // sanitize: convert email to lowercase
+        email: user.email.toLowerCase(),
         password: encryptedPassword
     });
-    let token = await generateToken(userData._id, userData.email)
-    data.name = userData.name
-    data.email = userData.email
-    data.token = token
+    
+    return await userDatabase.find({id: userData.id}, {
+        '_id': 0, '__v': 0
+    })
 
-    return data
 }
 
 async function existUser(email) {
@@ -47,16 +45,15 @@ async function validatePassword(user, password) {
         return { message: "Logged In Successfully", data }
 
     }
-
-
 }
 
 async function getAllUsers(skip,limit) {
     return await userDatabase.find({}, {
-        '_id': 0, '__v': 0
+        '_id': 0, '__v': 0,'password': 0
     })
     .sort({id: 1})
     .skip(skip)
+    .skip()
     .limit(limit)
     
 }
