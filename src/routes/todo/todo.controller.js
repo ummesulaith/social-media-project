@@ -1,16 +1,15 @@
-const { createTodo, getLatestToDoNumber, getAllTodos, existsTodoWithId, updateToDoById, deleteToDoById } = require('../../../models/todo/todo.model')
+const Todo = require('../../models/todo/todo.model')
 const { getPagination } = require('../../services/query')
 
 async function httpCreateToDo(req, res) {
     let todo = req.body
-    console.log('check for header', req.user)
-    if (!todo.title || !todo.description) {
+    if (!todo.title) {
         return res.status(400).json({
             error: 'Missing required todo details',
         })
     }
-    let id = await getLatestToDoNumber()
-    let result = await createTodo(todo, req.user, id)
+    let id = await Todo.getLatestToDoNumber()
+    let result = await Todo.createTodo(todo, req.user, id)
     return res.status(201).json(result)
 }
 
@@ -19,7 +18,7 @@ async function httpGetToDo(req, res) {
     let filter= req.query
     delete filter.skip
     delete filter.limit
-    const todos = await getAllTodos(filter,skip, limit)
+    const todos = await Todo.getAllTodos(filter,skip, limit)
     return res.status(200).json(todos)
 }
 
@@ -31,15 +30,20 @@ async function httpUpdateToDo(req, res) {
             error: 'Missing required todo details',
         })
     } else {
-        let existsTodo = await existsTodoWithId(todoId)
+        let existsTodo = await Todo.existsTodoWithId(todoId)
         if (!existsTodo) {
             return res.status(404).json({
                 error: 'TODO not found'
             })
         } else {
-            const updateTodo = await updateToDoById(todoBody)
-            let result = await existsTodoWithId(todoId)
-            return res.status(200).json({ result })
+            let authorizedUser = await Todo.checkUserAccess(req.user,existsTodo)
+            if(authorizedUser){
+            const updateTodo = await Todo.updateToDoById(todoId,todoBody)
+            let result = await Todo.existsTodoWithId(todoId)
+            return res.status(200).json({ result })}
+            else{
+                return res.status(401).send({message:'User not authorized to update'})
+            }
         }
     }
 }
@@ -51,14 +55,19 @@ async function httpDeleteToDo(req, res) {
             error: 'Missing required todo details',
         })
     } else {
-        let existsTodo = await existsTodoWithId(todoId)
+        let existsTodo = await Todo.existsTodoWithId(todoId)
         if (!existsTodo) {
             return res.status(404).json({
                 error: 'TODO not found'
             })
         } else {
-            const deleteTodo = await deleteToDoById(todoId)
+            let authorizedUser = await Todo.checkUserAccess(req.user,existsTodo)
+            if(authorizedUser){
+            const deleteTodo = await Todo.deleteToDoById(todoId)
             return res.status(200).json({ result: "ok" })
+            }else{
+                return res.status(401).send({message:'User not authorized to update'})
+            }
         }
     }
 }

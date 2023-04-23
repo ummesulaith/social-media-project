@@ -1,30 +1,23 @@
-const todoDatabase = require('./todo.model.mongo.schema')
-const DEFAULT_TODO_ID = 1
+const todoDatabase = require('./todo.model.mongo.schema'),
+userDatabase = require('../user/user.model.mongo.schema'),
+ DEFAULT_TODO_ID = 1
 
 async function createTodo(todo, user, id) {
-    let data = {}
     const todoData = await todoDatabase.create({
         userId: user.id,
         id: id,
         title: todo.title,
-        description: todo.description,
         completed: false
     });
-    data.userId = todoData.userId
-    data.id = todoData.id
-    data.title = todoData.title
-    data.description = todoData.description
-    data.completed = todoData.completed
-    data.createdAt = todoData.createdAt
-    console.log('todo data', data)
-    return data
+    return await todoDatabase.find({id: todoData.id}, {
+        '_id': 0, '__v': 0
+    })
 
 }
 
 async function getLatestToDoNumber() {
     const latestTodoId = await todoDatabase.findOne({})
         .sort('-id')
-    console.log('latest to do', latestTodoId)
     if (!latestTodoId) {
         return DEFAULT_TODO_ID
     }
@@ -59,8 +52,8 @@ async function findTodo(filter) {
     })
 }
 
-async function updateToDoById(filter) {
-    let updateResult = await todoDatabase.updateOne(filter)
+async function updateToDoById(id,filter) {
+    let updateResult = await todoDatabase.updateOne({ id: id },{$set: filter})
     return updateResult.modifiedCount === 1;
 }
 
@@ -68,11 +61,26 @@ async function deleteToDoById(id) {
     let deleteResult = await todoDatabase.deleteOne({ id: id })
     return deleteResult.modifiedCount === 1;
 }
+
+async function checkUserAccess(currentUser,authorizedUser){
+    let requestedEditUser = await getUserDetails({ email: currentUser.email })
+    if (requestedEditUser._id == authorizedUser.userId) return true
+    else return false
+
+}
+
+async function getUserDetails(filter) {
+    return await userDatabase.findOne(filter, {
+        '__v': 0
+    })
+}
+
 module.exports = {
     createTodo,
     getLatestToDoNumber,
     getAllTodos,
     existsTodoWithId,
     updateToDoById,
-    deleteToDoById
+    deleteToDoById,
+    checkUserAccess
 }

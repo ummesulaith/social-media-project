@@ -8,8 +8,4 @@ const express = require('express'),
   todoRouter.put('/:id',auth,todoController.httpUpdateToDo)
   todoRouter.delete('/:id',auth,todoController.httpDeleteToDo)
 
-
-
-//   todoRouter.get('/home',auth, userController.httpHomePage)
-
  module.exports =  todoRouter
