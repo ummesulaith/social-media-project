@@ -1,9 +1,10 @@
 
-const { signup, existUser, validatePassword } = require('../../../models/user/user.model')
+const { signup, existUser, validatePassword,getAllUsers } = require('../../../models/user/user.model')
+const { getPagination } = require('../../services/query')
 
 async function httpRegisterUser(req, res) {
   const user = req.body;
-  if (!user.first_name || !user.last_name || !user.email || !user.password) {
+  if (!user.name  || !user.email || !user.password) {
     return res.status(400).json({
       error: 'Missing required user details',
     })
@@ -46,8 +47,14 @@ async function httpHomePage(req, res) {
   res.status(200).send("Welcome 🙌 ");
 }
 
+async function httpGetUsers(req,res){
+  const { skip, limit } = getPagination(req.query)
+  const todos = await getAllUsers(skip, limit)
+  return res.status(200).json(todos)
+}
 module.exports = {
   httpRegisterUser,
   httpLoginUser,
-  httpHomePage
+  httpHomePage,
+  httpGetUsers
 }
